@@ -102,9 +102,16 @@ A [scheduled GitHub Action](./.github/workflows/sync-upstream.yml) runs daily at
 
 ---
 
+## Acknowledgements
+
+Based on [apipa12/antigravity-arch](https://github.com/apipa12/antigravity-arch) — the original Arch installer for Antigravity. This fork extends it with a modular architecture, version-detection fix, and automated CI. All upstream improvements are pulled in daily.
+
+---
+
 ## License
 
 MIT — see [LICENSE](./LICENSE)
+
 
 ---
 

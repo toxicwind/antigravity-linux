@@ -7,6 +7,7 @@
 **The definitive Antigravity IDE installer for Arch-based Linux**
 
 [![Sync](https://github.com/toxicwind/antigravity-linux/actions/workflows/sync-upstream.yml/badge.svg)](https://github.com/toxicwind/antigravity-linux/actions/workflows/sync-upstream.yml)
+[![Test](https://github.com/toxicwind/antigravity-linux/actions/workflows/test.yml/badge.svg)](https://github.com/toxicwind/antigravity-linux/actions/workflows/test.yml)
 [![Platform](https://img.shields.io/badge/Arch%20%7C%20Garuda%20%7C%20Manjaro%20%7C%20CachyOS-1793D1?logo=archlinux&logoColor=white&label=platform)](https://archlinux.org)
 [![Shell](https://img.shields.io/badge/bash-modular-89e051?logo=gnubash&logoColor=white)](./lib)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)

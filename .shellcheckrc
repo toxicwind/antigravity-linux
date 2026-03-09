@@ -1,0 +1,4 @@
+# shellcheck configuration
+# Prevents SC1090/SC1091 "can't follow non-constant source" errors for
+# modules sourced at runtime (lib/*.sh, tests/test_helper.bash).
+disable=SC1090,SC1091

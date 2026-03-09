@@ -49,9 +49,11 @@ jobs:
           echo "merge_status=$MERGE_EXIT" >> "$GITHUB_OUTPUT"
 
       - name: Re-apply awk EOF-flush patch
-        # Ensures our fix survives even if upstream touches the same block.
+        # Ensures our fix survives even if upstream touches lib/pkg_index.sh.
+        # NOTE: after modularization the awk parser lives in lib/pkg_index.sh,
+        # NOT in antigravity-installer.sh — patch target updated accordingly.
         run: |
-          python3 - antigravity-installer.sh <<'PYPATCH'
+          python3 - lib/pkg_index.sh <<'PYPATCH'
           import sys, re
 
           path = sys.argv[1]
@@ -84,7 +86,7 @@ jobs:
           if git diff --quiet; then
             echo "No patch changes needed."
           else
-            git add antigravity-installer.sh
+            git add lib/pkg_index.sh
             git commit -m "fix: re-apply awk EOF-flush patch after upstream sync"
           fi
 

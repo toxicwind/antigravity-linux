@@ -15,8 +15,8 @@ teardown() { teardown_mocks; }
 
 @test "picks latest version when last entry has no trailing blank line" {
   make_stub curl "cp '${FIXTURES}/Packages' \"\${@: -1}\""
-  run fetch_latest_package "/tmp/Packages.$$" "https://fake-apt-base"
-  [ "$status" -eq 0 ]
+  # Call directly (not via `run`) so exported vars are visible in parent shell
+  fetch_latest_package "/tmp/Packages.$$" "https://fake-apt-base"
   [[ "$DEBVER"      == "1.20.4-1772839303" ]]
   [[ "$DEBFILENAME" == *"1.20.4"* ]]
   [[ "$DEBSHA256"   == "bbbb"* ]]
@@ -24,8 +24,7 @@ teardown() { teardown_mocks; }
 
 @test "picks latest version when single entry has trailing blank line" {
   make_stub curl "cp '${FIXTURES}/Packages.single_with_newline' \"\${@: -1}\""
-  run fetch_latest_package "/tmp/Packages.$$" "https://fake-apt-base"
-  [ "$status" -eq 0 ]
+  fetch_latest_package "/tmp/Packages.$$" "https://fake-apt-base"
   [[ "$DEBVER" == "1.20.3-old" ]]
 }
 

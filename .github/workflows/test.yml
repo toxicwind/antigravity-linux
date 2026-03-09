@@ -29,12 +29,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache bats-core
+        id: cache-bats
+        uses: actions/cache@v4
+        with:
+          path: /opt/bats-core-1.11.0
+          key: bats-core-1.11.0
+
       - name: Install bats-core
+        if: steps.cache-bats.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y curl
-          # Install bats-core from official GitHub release (not in Ubuntu apt)
           curl -fsSL https://github.com/bats-core/bats-core/archive/refs/tags/v1.11.0.tar.gz \
             | sudo tar -xz -C /opt
+
+      - name: Link bats
+        run: |
           sudo ln -sf /opt/bats-core-1.11.0/bin/bats /usr/local/bin/bats
           bats --version
 
@@ -49,6 +58,12 @@ jobs:
       image: archlinux:latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache pacman packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/pacman/pkg
+          key: arch-pkgs-bats-${{ runner.os }}
 
       - name: Install dependencies
         run: pacman -Sy --noconfirm bats curl

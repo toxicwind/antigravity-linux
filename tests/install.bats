@@ -51,15 +51,23 @@ teardown() {
 }
 
 @test "install_binaries applies setuid to chrome-sandbox when present" {
+  local APP_DIR="${WORKDIR}/opt/ag"
   mkdir -p "${WORKDIR}/usr/share/antigravity"
   touch "${WORKDIR}/usr/share/antigravity/antigravity"
-  touch "${WORKDIR}/usr/share/antigravity/chrome-sandbox"
 
   local sudo_calls="${WORKDIR}/sudo_calls"
-  make_stub sudo "echo \"\$@\" >> '${sudo_calls}'"
+  # Stub sudo: for the cp step, also seed chrome-sandbox into APP_DIR so the
+  # [[ -f ]] check in install_binaries sees it after 'sudo cp' runs.
+  make_stub sudo "
+    echo \"\$@\" >> '${sudo_calls}'
+    if [[ \"\$1\" == 'cp' ]]; then
+      mkdir -p '${APP_DIR}'
+      touch '${APP_DIR}/chrome-sandbox'
+    fi
+  "
 
   cd "$WORKDIR"
-  run install_binaries "/opt/antigravity-test" "/tmp/ag-link"
+  run install_binaries "${APP_DIR}" "/tmp/ag-link"
   [ "$status" -eq 0 ]
   grep -q "chown root:root" "$sudo_calls"
   grep -q "chmod 4755" "$sudo_calls"

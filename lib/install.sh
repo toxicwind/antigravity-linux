@@ -111,9 +111,9 @@ EOF
     local auth_page="${target_app_dir}/resources/app/extensions/antigravity/auth-success-jetski.html"
     [[ ! -f "$auth_page" ]] && return 0
     
-    log_info "Applying branding to auth success page..."
-    sudo sed -i 's/<title>Authentication Successful<\/title>/<title>Redirecting to Antigravity<\/title>/g' "$auth_page"
-    sudo sed -i 's/Sign in successful. Redirecting to Jetski.../Blast off! Redirecting to Jetski.../g' "$auth_page"
+    log_info "Branding auth success page..."
+    sudo sed -i 's/<title>Authentication Successful<\/title>/<title>Antigravity | Blast Off!<\/title>/g' "$auth_page"
+    sudo sed -i 's/Sign in successful. Redirecting to Jetski.../Blast off! Redirecting to Antigravity.../g' "$auth_page"
   }
   patch_ui "$app_dir"
 

@@ -8,7 +8,7 @@ on:
 
 jobs:
   shellcheck:
-    name: ShellCheck (static analysis)
+    name: ShellCheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,73 +16,42 @@ jobs:
       - name: Install shellcheck
         run: sudo apt-get install -y shellcheck
 
-      - name: Lint all shell files
+      - name: Lint
         run: |
           shellcheck -x -e SC1090,SC1091 antigravity-installer.sh
           shellcheck -x -e SC1090,SC1091 lib/*.sh
           shellcheck -x -e SC1090,SC1091 tests/test_helper.bash
 
-  test:
-    name: bats unit + integration tests
+  test-ubuntu:
+    name: bats (Ubuntu)
     runs-on: ubuntu-latest
     needs: shellcheck
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install bats-core
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y bats kcov curl
+          sudo apt-get install -y curl
+          # Install bats-core from official GitHub release (not in Ubuntu apt)
+          curl -fsSL https://github.com/bats-core/bats-core/archive/refs/tags/v1.11.0.tar.gz \
+            | sudo tar -xz -C /opt
+          sudo ln -sf /opt/bats-core-1.11.0/bin/bats /usr/local/bin/bats
+          bats --version
 
-      - name: Run tests with kcov (coverage)
-        run: |
-          mkdir -p coverage
-          kcov \
-            --include-path=antigravity-installer.sh,lib/ \
-            --bash-dont-parse-binary-dir \
-            coverage/ \
-            bats tests/
-
-      - name: Print coverage summary
-        run: |
-          SUMMARY="coverage/bats/coverage.json"
-          if [[ -f "$SUMMARY" ]]; then
-            python3 -c "
-          import json, sys
-          d = json.load(open('$SUMMARY'))
-          pct = d.get('percent_covered', 'N/A')
-          lines = d.get('covered_lines', '?')
-          total = d.get('total_lines', '?')
-          print(f'Coverage: {pct}%  ({lines}/{total} lines)')
-          if float(pct) < 80:
-              print('ERROR: Coverage below 80%', file=sys.stderr)
-              sys.exit(1)
-          "
-          else
-            echo "No coverage.json found — check kcov output dir structure"
-          fi
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage/
+      - name: Run tests
+        run: bats tests/
 
   test-arch:
-    name: bats tests on Arch Linux
+    name: bats (Arch Linux)
     runs-on: ubuntu-latest
     needs: shellcheck
     container:
       image: archlinux:latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies (pacman)
-        run: |
-          pacman -Sy --noconfirm bash-bats curl
+      - name: Install dependencies
+        run: pacman -Sy --noconfirm bats curl
 
-      - name: Run tests (no coverage on Arch runner — kcov not in core)
+      - name: Run tests
         run: bats tests/

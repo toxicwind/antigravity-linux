@@ -1,17 +1,18 @@
 # Antigravity Installer (Arch / Garuda / Manjaro / CachyOS)
 
-Unofficial installer for **Google Antigravity** on Arch-based Linux distributions.
-
-> **Forked from [apipa12/antigravity-arch](https://github.com/apipa12/antigravity-arch) by [toxicwind](https://github.com/toxicwind)**  
-> This fork fixes a critical bug that caused the installer to always install the *second-to-last* version rather than the latest.
+> **Fork of [apipa12/antigravity-arch](https://github.com/apipa12/antigravity-arch)** — maintained by [toxicwind](https://github.com/toxicwind)
+>
+> Credit and original work goes to **[@apipa12](https://github.com/apipa12)**. This fork applies bug fixes and maintains compatibility with the latest Antigravity builds. Upstream changes are merged automatically via GitHub Actions.
 
 ---
 
-## 🐛 Bug Fix (vs upstream)
+## 🐛 Changes vs Upstream
 
-**Problem:** The awk parser that extracts package info from the APT `Packages` index only committed a record when it encountered a blank line between entries. The **last entry** in the index file has no trailing blank line (EOF), so it was silently dropped — causing the installer to always pick the second-to-last version.
+### Fix: awk always installed second-to-last version ([`antigravity-installer.sh`](./antigravity-installer.sh))
 
-**Fix:** Added an EOF-flush in the awk `END{}` block to capture any in-progress record at end of file.
+The awk parser that reads the APT `Packages` index only committed a package record when it hit a blank separator line (`NF==0`). The **last entry** in the file has no trailing blank line (EOF), so it was always silently dropped — causing the installer to pick the second-to-last version every time.
+
+**Fix:** Added an EOF flush in the `END{}` block:
 
 ```diff
  END{
@@ -35,12 +36,11 @@ Unofficial installer for **Google Antigravity** on Arch-based Linux distribution
 - ✅ Installs **.desktop launcher** and application icon
 - ✅ Applies **Chrome-style sandbox** fix for better compatibility
 - ✅ **Idempotent:** re-running updates Antigravity to the latest version
+- ✅ **Auto-synced** from upstream via GitHub Actions (without clobbering fixes)
 
 ---
 
 ## 🇬🇧 Install / Update
-
-### Quick install
 
 ```bash
 git clone https://github.com/toxicwind/antigravity-arch.git
@@ -49,15 +49,11 @@ chmod +x antigravity-installer.sh
 ./antigravity-installer.sh
 ```
 
-### Update in place
+To update later:
 
 ```bash
-cd antigravity-arch
-git pull
-./antigravity-installer.sh
+cd antigravity-arch && git pull && ./antigravity-installer.sh
 ```
-
-### Uninstall
 
 ```bash
 ./antigravity-installer.sh --uninstall
@@ -67,12 +63,6 @@ git pull
 
 ## 📋 Requirements
 
-- `curl`
-- `bsdtar` (`libarchive` package)
-- `sha256sum` (`coreutils`)
-- `awk` (`gawk`)
-- `sudo`
-
 ```bash
 sudo pacman -S curl libarchive coreutils gawk sudo
 ```
@@ -81,11 +71,12 @@ sudo pacman -S curl libarchive coreutils gawk sudo
 
 ## ⚠️ Disclaimer
 
-This installer is **unofficial** and is **not affiliated with or endorsed by Google**.  
-Use at your own risk. Always review shell scripts before running them with elevated privileges.
+This installer is **unofficial** and **not affiliated with or endorsed by Google**.  
+Use at your own risk. Always review scripts before running with elevated privileges.
 
 ---
 
-## 🛠 Issues
+## 🔗 Upstream
 
-Open an issue: https://github.com/toxicwind/antigravity-arch/issues
+- Original repo: https://github.com/apipa12/antigravity-arch
+- Issues / PRs for this fork: https://github.com/toxicwind/antigravity-arch/issues

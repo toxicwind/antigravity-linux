@@ -1,0 +1,19 @@
+Package: antigravity
+Version: 1.20.3-1772763544
+Installed-Size: 760000
+Maintainer: Google, LLC
+Architecture: amd64
+Filename: pool/antigravity-debian/antigravity_1.20.3_amd64.deb
+SHA256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Size: 155000000
+Description: Experience liftoff
+
+Package: antigravity
+Version: 1.20.4-1772839303
+Installed-Size: 767409
+Maintainer: Google, LLC
+Architecture: amd64
+Filename: pool/antigravity-debian/antigravity_1.20.4_amd64.deb
+SHA256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Size: 160702424
+Description: Experience liftoff

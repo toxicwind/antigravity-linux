@@ -1,0 +1,10 @@
+Package: other-package
+Version: 1.0.0
+Installed-Size: 1000
+Maintainer: Someone
+Architecture: amd64
+Filename: pool/other/other_1.0.0_amd64.deb
+SHA256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+Size: 10000
+Description: Some other package
+

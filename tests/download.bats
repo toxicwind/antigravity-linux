@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/download.bats — tests for lib/download.sh
+# bats file_tags=ci
 
 load 'test_helper'
 

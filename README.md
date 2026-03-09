@@ -97,6 +97,26 @@ fetch_latest_package → download_and_verify → extract_deb → install_binarie
 
 ---
 
+## Development
+
+All common tasks are available via `make`:
+
+```bash
+make          # show all targets
+make ci       # lint + mocked tests (same as GitHub Actions)
+make test     # run CI-tagged bats tests only
+make test-all # run every test including local-tagged ones
+make lint     # shellcheck all .sh files
+make install  # install or update Antigravity
+make verify   # run real-system post-install checks
+make update   # git pull + install
+```
+
+Tests are tagged `@ci` (safe to run anywhere, all mocked) or `@local` (real system only).  
+See [`VERIFIED.md`](./VERIFIED.md) for confirmed real-system runs.
+
+---
+
 ## How auto-sync works
 
 A [scheduled GitHub Action](./.github/workflows/sync-upstream.yml) runs daily at 06:00 UTC. It fetches the latest upstream installer improvements, merges them, then re-applies any local patches as a post-merge step — so upstream updates land automatically without breaking anything.

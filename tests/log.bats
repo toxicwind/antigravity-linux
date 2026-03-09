@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/log.bats — tests for lib/log.sh
+# bats file_tags=ci
 
 load 'test_helper'
 

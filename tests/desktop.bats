@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/desktop.bats — tests for lib/desktop.sh
+# bats file_tags=ci
 
 load 'test_helper'
 

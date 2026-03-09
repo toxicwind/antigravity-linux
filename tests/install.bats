@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/install.bats — tests for lib/install.sh
+# bats file_tags=ci
 
 load 'test_helper'
 

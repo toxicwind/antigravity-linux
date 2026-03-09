@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/main.bats — integration tests for antigravity-installer.sh orchestrator
+# bats file_tags=ci
 
 load 'test_helper'
 

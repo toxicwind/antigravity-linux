@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/pkg_index.bats — tests for lib/pkg_index.sh (critical: awk EOF-flush fix)
+# bats file_tags=ci
 
 load 'test_helper'
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/uninstall.bats — tests for lib/uninstall.sh
+# bats file_tags=ci
 
 load 'test_helper'
 

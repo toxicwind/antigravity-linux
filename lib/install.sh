@@ -105,6 +105,18 @@ EOF
   patch_json_robust "$product_json" || return 1
   patch_json_robust "$package_json" || return 1
 
+  # Patch UI branding
+  patch_ui() {
+    local target_app_dir="$1"
+    local auth_page="${target_app_dir}/resources/app/extensions/antigravity/auth-success-jetski.html"
+    [[ ! -f "$auth_page" ]] && return 0
+    
+    log_info "Applying branding to auth success page..."
+    sudo sed -i 's/<title>Authentication Successful<\/title>/<title>Redirecting to Antigravity<\/title>/g' "$auth_page"
+    sudo sed -i 's/Sign in successful. Redirecting to Jetski.../Blast off! Redirecting to Jetski.../g' "$auth_page"
+  }
+  patch_ui "$app_dir"
+
   # Chrome/VS Code-style sandbox — must be owned/setuid root
   if [[ -f "${app_dir}/chrome-sandbox" ]]; then
     sudo chown root:root "${app_dir}/chrome-sandbox" || true

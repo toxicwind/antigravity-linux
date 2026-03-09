@@ -3,19 +3,39 @@ SHELL := /usr/bin/env bash
 INSTALLER := ./antigravity-installer.sh
 BATS      := $(shell command -v bats 2>/dev/null || echo bats)
 SC        := $(shell command -v shellcheck 2>/dev/null || echo shellcheck)
+CACHE_DIR := .make_cache
 
-.PHONY: help lint test test-local verify install uninstall update ci clean
+.PHONY: help lint lint-shell lint-json test test-all test-local verify install uninstall update ci clean
 
 # ── Default ────────────────────────────────────────────────────────────────
 help: ## Show this help
 	@awk 'BEGIN{FS=":.*##"} /^[a-zA-Z_-]+:.*##/{printf "  \033[36m%-14s\033[0m %s\n",$$1,$$2}' $(MAKEFILE_LIST)
 
 # ── Linting ────────────────────────────────────────────────────────────────
-lint: ## Run shellcheck on all shell files
-	$(SC) -x -e SC1090,SC1091 $(INSTALLER)
-	$(SC) -x -e SC1090,SC1091 lib/*.sh
-	$(SC) -x -e SC1090,SC1091 tests/test_helper.bash
-	@echo "✓ shellcheck passed"
+$(CACHE_DIR):
+	@mkdir -p $(CACHE_DIR)
+
+lint: lint-shell lint-json ## Run all linters
+
+lint-shell: $(CACHE_DIR) ## Run shellcheck with caching
+	@if [ "$(INSTALLER)" -nt "$(CACHE_DIR)/shellcheck" ]; then \
+		$(SC) -x -e SC1090,SC1091 $(INSTALLER) && \
+		$(SC) -x -e SC1090,SC1091 lib/*.sh && \
+		$(SC) -x -e SC1090,SC1091 tests/test_helper.bash && \
+		touch $(CACHE_DIR)/shellcheck && \
+		echo "✓ shellcheck passed"; \
+	else \
+		echo "✓ shellcheck (cached)"; \
+	fi
+
+lint-json: $(CACHE_DIR) ## Lint all JSON files with caching
+	@if [ ! -f $(CACHE_DIR)/jsonlint ] || [ $$(find . -name "*.json" -newer $(CACHE_DIR)/jsonlint | wc -l) -gt 0 ]; then \
+		find . -name "*.json" -not -path "*/node_modules/*" -exec python3 -m json.tool {} > /dev/null \; && \
+		touch $(CACHE_DIR)/jsonlint && \
+		echo "✓ json lint passed"; \
+	else \
+		echo "✓ json lint (cached)"; \
+	fi
 
 # ── Tests ──────────────────────────────────────────────────────────────────
 test: ## Run CI-tagged bats tests (mocked, no real system deps)
@@ -47,6 +67,7 @@ verify: ## Run local post-install verification (real system checks)
 	@bash tests/local/verify_install.sh
 
 # ── Utilities ─────────────────────────────────────────────────────────────
-clean: ## Remove temp files and bats helpers
+clean: ## Remove temp files and cache
+	@rm -rf $(CACHE_DIR)
 	@find . -name '*.tmp' -delete 2>/dev/null || true
 	@echo "✓ clean"

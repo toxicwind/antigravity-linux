@@ -86,3 +86,50 @@ teardown() {
   [ "$status" -eq 0 ]
   ! grep -q "chown root:root" "$sudo_calls"
 }
+
+@test "install_binaries patches product.json safely" {
+  local APP_DIR="${WORKDIR}/opt/ag"
+  local PRODUCT_JSON_PATH="usr/share/antigravity/resources/app/product.json"
+  mkdir -p "${WORKDIR}/$(dirname "$PRODUCT_JSON_PATH")"
+  
+  # Create a sample product.json with problematic entries
+  cat <<EOF > "${WORKDIR}/${PRODUCT_JSON_PATH}"
+{
+    "nameShort": "Antigravity",
+    "extensionEnabledApiProposals": {
+        "attributableCoverage": ["ext1"],
+        "contribIssueReporter": ["ext2"],
+        "lmTools": ["ext3"],
+        "stableFeature": ["ext4"]
+    }
+}
+EOF
+
+  local sudo_calls="${WORKDIR}/sudo_calls"
+  # Stub sudo to mimic real file movement and then allow python patch to run on it
+  # Since we are in a test, python script will run as the current user.
+  # We need to make sure the file exists in the simulated APP_DIR.
+  make_stub sudo "
+    if [[ \"\$1\" == 'cp' ]]; then
+      mkdir -p \"\${@: -1}\"
+      cp -r usr/share/antigravity/* \"\${@: -1}/\"
+    fi
+  "
+
+  cd "$WORKDIR"
+  run install_binaries "${APP_DIR}" "/tmp/ag-link"
+  [ "$status" -eq 0 ]
+  
+  local patched_json="${APP_DIR}/resources/app/product.json"
+  [ -f "$patched_json" ]
+  
+  # Verify it's valid JSON
+  python3 -m json.tool "$patched_json" > /dev/null
+  
+  # Verify entries were removed
+  [ "$(grep -c "attributableCoverage" "$patched_json")" -eq 0 ]
+  [ "$(grep -c "contribIssueReporter" "$patched_json")" -eq 0 ]
+  [ "$(grep -c "lmTools" "$patched_json")" -eq 0 ]
+  # Verify other entries remain
+  grep -q "stableFeature" "$patched_json"
+}

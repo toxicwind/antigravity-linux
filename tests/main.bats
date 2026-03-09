@@ -33,8 +33,8 @@ teardown() {
   make_stub curl ""  # empty body = exits 0 but doesn't exist via command -v trick
   # Better: hide it entirely
   rm -f "${MOCK_BIN}/curl"
-  run bash -c "PATH='${MOCK_BIN}' bash '${INSTALLER}'"
-  [ "$status" -ne 0 ]
+  run -127 bash -c "PATH='${MOCK_BIN}' bash '${INSTALLER}'"
+  [ "$status" -eq 127 ]
 }
 
 # ── --uninstall flag ─────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # tests/install.bats — tests for lib/install.sh
+bats_require_minimum_version 1.5.0
 # bats file_tags=ci
 
 load 'test_helper'
@@ -106,14 +107,18 @@ teardown() {
 EOF
 
   local sudo_calls="${WORKDIR}/sudo_calls"
-  # Stub sudo to mimic real file movement and then allow python patch to run on it
-  # Since we are in a test, python script will run as the current user.
-  # We need to make sure the file exists in the simulated APP_DIR.
+  # Stub sudo to be a transparent wrapper for most commands, but bypass root-only actions
   make_stub sudo "
-    if [[ \"\$1\" == 'cp' ]]; then
-      mkdir -p \"\${@: -1}\"
-      cp -r usr/share/antigravity/* \"\${@: -1}/\"
-    fi
+    case \"\$1\" in
+      chown|chmod)
+        # Bypassing root-only permissions in tests
+        exit 0
+        ;;
+      *)
+        # Execute the actual command as the current test user
+        \"\$@\"
+        ;;
+    esac
   "
 
   cd "$WORKDIR"

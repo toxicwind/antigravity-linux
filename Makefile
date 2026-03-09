@@ -29,8 +29,13 @@ lint-shell: $(CACHE_DIR) ## Run shellcheck with caching
 	fi
 
 lint-json: $(CACHE_DIR) ## Lint all JSON files with caching
-	@if [ ! -f $(CACHE_DIR)/jsonlint ] || [ $$(find . -name "*.json" -newer $(CACHE_DIR)/jsonlint | wc -l) -gt 0 ]; then \
-		find . -name "*.json" -not -path "*/node_modules/*" -exec python3 -m json.tool {} > /dev/null \; && \
+	@FILES=$$(find . -name "*.json" -not -path "*/node_modules/*" -not -path "*/workspace/*" -not -path "*/usr/*"); \
+	if [ -z "$$FILES" ]; then echo "✓ no json files to lint"; exit 0; fi; \
+	NEED_LINT=0; \
+	if [ ! -f $(CACHE_DIR)/jsonlint ]; then NEED_LINT=1; \
+	else for f in $$FILES; do if [ "$$f" -nt "$(CACHE_DIR)/jsonlint" ]; then NEED_LINT=1; break; fi; done; fi; \
+	if [ "$$NEED_LINT" -eq 1 ]; then \
+		echo "$$FILES" | xargs -n1 python3 -m json.tool > /dev/null && \
 		touch $(CACHE_DIR)/jsonlint && \
 		echo "✓ json lint passed"; \
 	else \

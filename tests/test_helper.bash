@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # tests/test_helper.bash — shared setup for all bats test files
+bats_require_minimum_version 1.5.0
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export FIXTURES="${REPO_ROOT}/tests/fixtures"

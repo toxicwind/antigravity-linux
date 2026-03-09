@@ -70,6 +70,10 @@ read -r DEBVER DEBFILENAME DEBSHA256 <<< "$(
       pkg="";
     }
     END{
+      # Flush the final block if EOF was hit without a trailing blank line
+      if (pkg=="antigravity" && ver!="" && file!="" && sha!="") {
+        last_ver=ver; last_file=file; last_sha=sha;
+      }
       if (last_ver && last_file && last_sha)
         print last_ver, last_file, last_sha;
     }

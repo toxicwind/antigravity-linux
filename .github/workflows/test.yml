@@ -18,9 +18,9 @@ jobs:
 
       - name: Lint all shell files
         run: |
-          shellcheck antigravity-installer.sh
-          shellcheck lib/*.sh
-          shellcheck tests/test_helper.bash
+          shellcheck -x -e SC1090,SC1091 antigravity-installer.sh
+          shellcheck -x -e SC1090,SC1091 lib/*.sh
+          shellcheck -x -e SC1090,SC1091 tests/test_helper.bash
 
   test:
     name: bats unit + integration tests

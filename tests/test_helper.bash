@@ -2,7 +2,7 @@
 # tests/test_helper.bash — shared setup for all bats test files
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FIXTURES="${REPO_ROOT}/tests/fixtures"
+export FIXTURES="${REPO_ROOT}/tests/fixtures"
 
 # Create a fake bin dir and prepend it to PATH so we can stub system commands
 setup_mocks() {

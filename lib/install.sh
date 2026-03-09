@@ -29,51 +29,81 @@ install_binaries() {
   [[ -d usr/share/antigravity/resources ]] && sudo cp -rf usr/share/antigravity/resources "$app_dir/"
   [[ -d usr/share/antigravity/out ]] && sudo cp -rf usr/share/antigravity/out "$app_dir/"
 
-  # Patch product.json to remove outdated API proposals safely
+  # ── 3. Apply Permanent JSON Patches ─────────────────────────────────────────
+
   local product_json="${app_dir}/resources/app/product.json"
-  if [[ -f "$product_json" ]]; then
-    log_info "Patching product.json (safe JSON manipulation)..."
+  local package_json="${app_dir}/resources/app/package.json"
+
+  # Helper function for robust JSON manipulation
+  patch_json_robust() {
+    local target="$1"
+    [[ ! -f "$target" ]] && return 0
+    
+    log_info "Applying permanent patches to $(basename "$target")..."
     sudo python3 - <<EOF
 import json
 import sys
+import re
 
-path = "$product_json"
+path = "$target"
 try:
     with open(path, 'r') as f:
-        data = json.load(f)
+        content = f.read()
     
-    # Remove problematic extension proposals that cause v1.20.4 to crash or warn
-    if "extensionEnabledApiProposals" in data:
-        proposals = data["extensionEnabledApiProposals"]
+    # Pre-process to fix existing corruption if present (e.g. random commas)
+    clean = re.sub(r',\s*([\]}])', r'\1', content)
+    clean = re.sub(r',\s*,', r',', clean)
+    
+    try:
+        data = json.loads(clean)
+    except json.JSONDecodeError as e:
+        print(f"[!] Critical JSON error in {path}: {e}")
+        sys.exit(1)
+    
+    modified = False
+    
+    # Logic for product.json
+    if "product.json" in path:
+        proposals = data.get("extensionEnabledApiProposals", {})
         to_remove = [
             "attributableCoverage", "notebookCellExecutionState", 
             "contribIssueReporter", "fileComments", "chatVariableResolver", 
             "lmTools", "documentPaste"
         ]
-        
-        modified = False
         for p in to_remove:
             if p in proposals:
                 del proposals[p]
                 modified = True
                 
-        if modified:
-            with open(path, 'w') as f:
-                json.dump(data, f, indent=4)
-            print(f"[*] Patched {path} successfully.")
-        else:
-            print("[*] No patches needed for product.json.")
+    # Add any package.json specific logic here if needed, 
+    # or just use this pass to ensure it's linted/prettified.
+    if "package.json" in path:
+        # Example: Ensure certain scripts or flags are set
+        pass
+
+    if modified:
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"[*] Patched {path} successfully.")
+    else:
+        # Even if not modified by logic, we re-save to ensure it's "linted" by python
+        with open(path, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"[*] Verified/Re-serialized {path}.")
+        
 except Exception as e:
-    print(f"[!] Error patching product.json: {e}")
+    print(f"[!] Error during JSON patching: {e}")
     sys.exit(1)
 EOF
-    # Lint check to ensure we didn't break it
-    if ! python3 -m json.tool "$product_json" > /dev/null 2>&1; then
-        log_error "CRITICAL: product.json is invalid after patching! Reverting..."
-        # In a real scenario, we'd have a backup. For now, we report the failure.
+    # Validation
+    if ! python3 -m json.tool "$target" > /dev/null 2>&1; then
+        log_error "CRITICAL: $(basename "$target") is invalid! Installation may be unstable."
         return 1
     fi
-  fi
+  }
+
+  patch_json_robust "$product_json" || return 1
+  patch_json_robust "$package_json" || return 1
 
   # Chrome/VS Code-style sandbox — must be owned/setuid root
   if [[ -f "${app_dir}/chrome-sandbox" ]]; then

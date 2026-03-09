@@ -19,9 +19,23 @@ install_binaries() {
   local bin_link="$2"
 
   log_info "Installing into ${app_dir} (requires sudo)..."
-  sudo rm -rf "$app_dir"
   sudo mkdir -p "$app_dir"
-  sudo cp -r usr/share/antigravity/* "$app_dir/"
+  
+  # Merge core files
+  sudo cp -rn usr/share/antigravity/* "$app_dir/"
+  
+  # Force update critical binaries and directories if they exist in source
+  [[ -f usr/share/antigravity/antigravity ]] && sudo cp -f usr/share/antigravity/antigravity "$app_dir/"
+  [[ -d usr/share/antigravity/resources ]] && sudo cp -rf usr/share/antigravity/resources "$app_dir/"
+  [[ -d usr/share/antigravity/out ]] && sudo cp -rf usr/share/antigravity/out "$app_dir/"
+
+  # Patch product.json to remove outdated API proposals
+  local product_json="${app_dir}/resources/app/product.json"
+  if [[ -f "$product_json" ]]; then
+    log_info "Patching product.json..."
+    sudo sed -i 's/"attributableCoverage"//g; s/"notebookCellExecutionState"//g; s/"contribIssueReporter"//g; s/"fileComments"//g; s/"chatVariableResolver"//g; s/"lmTools"//g; s/"documentPaste"//g' "$product_json"
+    sudo sed -i 's/,,/,/g; s/\[,/\[/g; s/,]/]/g; s/ ,/ /g' "$product_json"
+  fi
 
   # Chrome/VS Code-style sandbox — must be owned/setuid root
   if [[ -f "${app_dir}/chrome-sandbox" ]]; then

@@ -1,0 +1,13 @@
+# Sensitive information
+.env
+
+# Temporary files
+workspace/
+*.deb
+data.tar.xz
+control.tar.xz
+debian-binary
+Packages
+
+# Logs
+*.log

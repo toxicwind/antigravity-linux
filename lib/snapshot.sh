@@ -3,32 +3,34 @@
 
 create_snapshot() {
     local target_dir="$1"
-    local backup_name="antigravity_pre_install_$(date +%Y%m%d_%H%M%S).tar.gz"
-    local backup_path="/tmp/${backup_name}"
+    local bak_dir="${target_dir}.bak"
 
     if [ -d "$target_dir" ]; then
         log_info "Creating pre-install snapshot of ${target_dir}..."
-        # tar czf "$backup_path" -C "$(dirname "$target_dir")" "$(basename "$target_dir")" 2>/dev/null || true
-        # Optimized: copy instead to avoid tar overhead for small files
-        sudo cp -rp "$target_dir" "${target_dir}.bak" || true
-        log_ok "Snapshot created: ${target_dir}.bak"
+        # Atomic preparation: wipe any stale backup first
+        sudo -A rm -rf "$bak_dir" 2>/dev/null || true
+        # Performance: Use -T (no-target-directory) to prevent recursion into existing bak
+        sudo -A cp -rpT "$target_dir" "$bak_dir" || true
+        log_ok "Snapshot created: ${bak_dir}"
     fi
 }
 
 rollback_snapshot() {
     local target_dir="$1"
-    if [ -d "${target_dir}.bak" ]; then
+    local bak_dir="${target_dir}.bak"
+    if [ -d "$bak_dir" ]; then
         log_error "Critical error encountered. Rolling back to previous state..."
-        sudo rm -rf "$target_dir"
-        sudo mv "${target_dir}.bak" "$target_dir"
+        sudo -A rm -rf "$target_dir"
+        sudo -A mv "$bak_dir" "$target_dir"
         log_ok "Rollback complete."
     fi
 }
 
 commit_snapshot() {
     local target_dir="$1"
-    if [ -d "${target_dir}.bak" ]; then
-        sudo rm -rf "${target_dir}.bak"
+    local bak_dir="${target_dir}.bak"
+    if [ -d "$bak_dir" ]; then
+        sudo -A rm -rf "$bak_dir"
         log_info "Installation committed (snapshot removed)."
     fi
 }

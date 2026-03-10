@@ -8,6 +8,7 @@ INSTALLER="${REPO_ROOT}/antigravity-installer.sh"
 
 setup() {
   setup_mocks
+  source_lib log.sh
   WORKDIR="$(mktemp -d)"
 
   # Stub all system commands used by the pipeline

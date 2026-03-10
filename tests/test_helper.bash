@@ -7,6 +7,7 @@ export FIXTURES="${REPO_ROOT}/tests/fixtures"
 
 # Create a fake bin dir and prepend it to PATH so we can stub system commands
 setup_mocks() {
+  export ANTIGRAVITY_TESTING=1
   MOCK_BIN="$(mktemp -d)"
   export PATH="${MOCK_BIN}:${PATH}"
   export MOCK_BIN

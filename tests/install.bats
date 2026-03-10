@@ -60,9 +60,12 @@ teardown() {
   local sudo_calls="${WORKDIR}/sudo_calls"
   # Stub sudo: for the cp step, also seed chrome-sandbox into APP_DIR so the
   # [[ -f ]] check in install_binaries sees it after 'sudo cp' runs.
+  # Stub sudo: handle -A if present
   make_stub sudo "
+    if [[ \"\$1\" == '-A' ]]; then shift; fi
     echo \"\$@\" >> '${sudo_calls}'
-    if [[ \"\$1\" == 'cp' ]]; then
+    local cmd=\"\$1\"
+    if [[ \"\$cmd\" == 'cp' ]]; then
       mkdir -p '${APP_DIR}'
       touch '${APP_DIR}/chrome-sandbox'
     fi
@@ -94,8 +97,7 @@ teardown() {
   mkdir -p "${WORKDIR}/$(dirname "$PRODUCT_JSON_PATH")"
   
   # Create a sample product.json with problematic entries
-  cat <<EOF > "${WORKDIR}/${PRODUCT_JSON_PATH}"
-{
+  printf '%s\n' '{
     "nameShort": "Antigravity",
     "extensionEnabledApiProposals": {
         "attributableCoverage": ["ext1"],
@@ -103,13 +105,14 @@ teardown() {
         "lmTools": ["ext3"],
         "stableFeature": ["ext4"]
     }
-}
-EOF
+}' > "${WORKDIR}/${PRODUCT_JSON_PATH}"
 
   local sudo_calls="${WORKDIR}/sudo_calls"
   # Stub sudo to be a transparent wrapper for most commands, but bypass root-only actions
   make_stub sudo "
-    case \"\$1\" in
+    if [[ \"\$1\" == '-A' ]]; then shift; fi
+    local cmd=\"\$1\"
+    case \"\$cmd\" in
       chown|chmod)
         # Bypassing root-only permissions in tests
         exit 0

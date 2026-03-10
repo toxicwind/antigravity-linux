@@ -10,6 +10,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export SUDO_ASKPASS="/home/toxic/.local/bin/antigravity-sudo-askpass"
 
 # ── Load modules ────────────────────────────────────────────────────────────
 source "${SCRIPT_DIR}/lib/log.sh"

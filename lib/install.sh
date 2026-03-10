@@ -19,15 +19,15 @@ install_binaries() {
   local bin_link="$2"
 
   log_info "Installing into ${app_dir} (requires sudo)..."
-  sudo mkdir -p "$app_dir"
+  sudo -A mkdir -p "$app_dir"
   
   # Merge core files
-  sudo cp -rn usr/share/antigravity/* "$app_dir/"
+  sudo -A cp -rn usr/share/antigravity/* "$app_dir/"
   
   # Force update critical binaries and directories if they exist in source
-  [[ -f usr/share/antigravity/antigravity ]] && sudo cp -f usr/share/antigravity/antigravity "$app_dir/"
-  [[ -d usr/share/antigravity/resources ]] && sudo cp -rf usr/share/antigravity/resources "$app_dir/"
-  [[ -d usr/share/antigravity/out ]] && sudo cp -rf usr/share/antigravity/out "$app_dir/"
+  [[ -f usr/share/antigravity/antigravity ]] && sudo -A cp -f usr/share/antigravity/antigravity "$app_dir/"
+  [[ -d usr/share/antigravity/resources ]] && sudo -A cp -rf usr/share/antigravity/resources "$app_dir/"
+  [[ -d usr/share/antigravity/out ]] && sudo -A cp -rf usr/share/antigravity/out "$app_dir/"
 
   # ── 3. Apply Permanent JSON Patches ─────────────────────────────────────────
 
@@ -40,7 +40,7 @@ install_binaries() {
     [[ ! -f "$target" ]] && return 0
     
     log_info "Applying permanent patches to $(basename "$target")..."
-    sudo python3 - <<EOF
+    sudo -A python3 - <<EOF
 import json
 import sys
 import re
@@ -112,19 +112,19 @@ EOF
     [[ ! -f "$auth_page" ]] && return 0
     
     log_info "Branding auth success page..."
-    sudo sed -i 's/<title>Authentication Successful<\/title>/<title>Antigravity | Blast Off!<\/title>/g' "$auth_page"
-    sudo sed -i 's/Sign in successful. Redirecting to Jetski.../Blast off! Redirecting to Antigravity.../g' "$auth_page"
+    sudo -A sed -i 's/<title>Authentication Successful<\/title>/<title>Antigravity | Blast Off!<\/title>/g' "$auth_page"
+    sudo -A sed -i 's/Sign in successful. Redirecting to Jetski.../Blast off! Redirecting to Antigravity.../g' "$auth_page"
   }
   patch_ui "$app_dir"
 
   # Chrome/VS Code-style sandbox — must be owned/setuid root
   if [[ -f "${app_dir}/chrome-sandbox" ]]; then
-    sudo chown root:root "${app_dir}/chrome-sandbox" || true
-    sudo chmod 4755    "${app_dir}/chrome-sandbox" || true
+    sudo -A chown root:root "${app_dir}/chrome-sandbox" || true
+    sudo -A chmod 4755    "${app_dir}/chrome-sandbox" || true
   fi
 
   log_info "Creating launcher symlink ${bin_link}..."
-  sudo mkdir -p "$(dirname "$bin_link")"
-  sudo ln -sf "${app_dir}/antigravity" "$bin_link"
+  sudo -A mkdir -p "$(dirname "$bin_link")"
+  sudo -A ln -sf "${app_dir}/antigravity" "$bin_link"
   log_ok "Binary installed."
 }

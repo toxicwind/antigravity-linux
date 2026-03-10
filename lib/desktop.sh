@@ -14,7 +14,7 @@ install_desktop_files() {
     tmp1="$(mktemp)"
     sed "s|^Exec=.*|Exec=${app_dir}/antigravity %U|g" \
       usr/share/applications/antigravity.desktop > "$tmp1"
-    sudo install -Dm644 "$tmp1" "$desktop1"
+    sudo -A install -Dm644 "$tmp1" "$desktop1"
   fi
 
   if [[ -f usr/share/applications/antigravity-url-handler.desktop ]]; then
@@ -22,12 +22,12 @@ install_desktop_files() {
     tmp2="$(mktemp)"
     sed "s|^Exec=.*|Exec=${app_dir}/antigravity %U|g" \
       usr/share/applications/antigravity-url-handler.desktop > "$tmp2"
-    sudo install -Dm644 "$tmp2" "$desktop2"
+    sudo -A install -Dm644 "$tmp2" "$desktop2"
   fi
 
   log_info "Installing icon..."
   if [[ -f usr/share/pixmaps/antigravity.png ]]; then
-    sudo install -Dm644 usr/share/pixmaps/antigravity.png "$icon_path"
+    sudo -A install -Dm644 usr/share/pixmaps/antigravity.png "$icon_path"
   fi
 
   log_ok "Desktop integration complete."

@@ -9,9 +9,9 @@ uninstall() {
   local icon_path="$5"
 
   log_info "Uninstalling Antigravity..."
-  sudo rm -rf  "$app_dir"           || true
-  sudo rm -f   "$bin_link"          || true
-  sudo rm -f   "$desktop1" "$desktop2" || true
-  sudo rm -f   "$icon_path"         || true
+  sudo -A rm -rf  "$app_dir"           || true
+  sudo -A rm -f   "$bin_link"          || true
+  sudo -A rm -f   "$desktop1" "$desktop2" || true
+  sudo -A rm -f   "$icon_path"         || true
   log_ok "Antigravity removed."
 }

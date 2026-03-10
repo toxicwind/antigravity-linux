@@ -12,7 +12,7 @@ install_desktop_files() {
   if [[ -f usr/share/applications/antigravity.desktop ]]; then
     local tmp1
     tmp1="$(mktemp)"
-    sed "s|^Exec=.*|Exec=${app_dir}/antigravity %U|g" \
+    sed "s|^Exec=.*|Exec=${app_dir}/antigravity --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations %U|g" \
       usr/share/applications/antigravity.desktop > "$tmp1"
     sudo -A install -Dm644 "$tmp1" "$desktop1"
   fi
@@ -20,7 +20,7 @@ install_desktop_files() {
   if [[ -f usr/share/applications/antigravity-url-handler.desktop ]]; then
     local tmp2
     tmp2="$(mktemp)"
-    sed "s|^Exec=.*|Exec=${app_dir}/antigravity %U|g" \
+    sed "s|^Exec=.*|Exec=${app_dir}/antigravity --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --open-url %U|g" \
       usr/share/applications/antigravity-url-handler.desktop > "$tmp2"
     sudo -A install -Dm644 "$tmp2" "$desktop2"
   fi

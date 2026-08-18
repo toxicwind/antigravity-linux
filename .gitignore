@@ -6,3 +6,5 @@ control.tar.xz
 Packages
 debian-binary
 .make_cache/
+_git/
+.git/

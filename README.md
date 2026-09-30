@@ -41,14 +41,15 @@ cd ~/.local/share/antigravity-linux
 ./antigravity-installer.sh
 ```
 
-### Silent Background Updates
+### Headless Updates
 
 ```bash
-# Register the background update agent (Silent-Slay)
 cp .env.example .env
-nano .env # Set your INSTALL_SUDO_PASS
-~/.local/bin/antigravity-update-launch &
+nano .env  # Set INSTALL_USER and INSTALL_SUDO_PASS
+make update # git pull --ff-only, then install
 ```
+
+The installer sources `.env` when present and honors `SUDO_ASKPASS` for zero-prompt privilege escalation — suitable for unattended/background runs.
 
 ---
 
@@ -116,6 +117,8 @@ make test   # Run integration tests
 
 **Not affiliated with or endorsed by Google**  
 *Antigravity is a trademark of Google LLC*
+
+Licensed under the [MIT License](LICENSE).
 
 [Report Issue](https://github.com/toxicwind/antigravity-linux/issues) · [View Source](https://github.com/toxicwind/antigravity-linux)
 
